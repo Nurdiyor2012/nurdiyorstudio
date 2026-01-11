@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Nurdiyor — Portfolio (Ultimate Design)</title>
+
+  <!-- three.js for subtle hero background -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+
+  <style>
+    /* ----------------------------
+       Reset & fonts
+       ---------------------------- */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Poppins:wght@600;800&display=swap');
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    :root{
+      --accent:#00ffe7; /* neon */
+      --muted:#9aa8a8;
+      --bg:#05060a;
+      --glass:rgba(255,255,255,0.03);
+      --card:#071018;
+    }
+
+    body{
+      background:linear-gradient(180deg,#02040a,#05060a);
+      color:#eafaf9; -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* ----------------------------
+       Layout & container
+       ---------------------------- */
+    .container{max-width:1200px;margin:0 auto;padding:0 24px}
+
+    /* ----------------------------
+       Navbar
+       ---------------------------- */
+    .nav-wrap{position:fixed;top:18px;left:0;right:0;z-index:40;display:flex;justify-content:center}
+    .navbar{
+      width:92%;max-width:1200px;padding:12px 18px;border-radius:14px;
+      backdrop-filter:blur(8px);background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.05));
+      border:1px solid rgba(0,255,230,0.06);display:flex;align-items:center;gap:18px
+    }
+    .logo{display:flex;align-items:center;gap:12px}
+    .logo .mark{width:44px;height:44px;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,var(--accent),#0066ff);display:flex;align-items:center;justify-content:center;font-weight:800;color:#001820}
+    .logo .title{font-family:Poppins,Inter;font-weight:700}
+
+    .menu{margin-left:auto;display:flex;gap:26px;align-items:center}
+    .menu a{color:var(--muted);text-decoration:none;font-weight:600;transition:.22s}
+    .menu a:hover{color:var(--accent);transform:translateY(-3px);text-shadow:0 0 10px rgba(0,255,230,0.06)}
+
+    .cta{margin-left:10px;padding:8px 12px;border-radius:10px;background:linear-gradient(90deg,var(--accent),#00a0ff);color:#001820;font-weight:700;border:none;cursor:pointer}
+
+    /* ----------------------------
+       Hero
+       ---------------------------- */
+    .hero{min-height:76vh;display:flex;align-items:center;position:relative;border-radius:18px;overflow:hidden}
+    #heroCanvas{position:absolute;inset:0;z-index:0}
+    .hero-inner{position:relative;z-index:10;padding:96px 0}
+    .eyebrow{color:var(--accent);font-weight:700;letter-spacing:1px}
+    h1{font-family:Poppins,Inter;font-size:48px;margin:10px 0 8px;line-height:1.02}
+    p.lead{color:var(--muted);max-width:760px;font-size:18px}
+
+    .hero-actions{margin-top:22px;display:flex;gap:14px}
+    .btn{padding:12px 18px;border-radius:12px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.02);color:#eaffff;cursor:pointer}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),#00a0ff);color:#001820;font-weight:700}
+
+    /* ----------------------------
+       Portfolio grid
+       ---------------------------- */
+    section{padding:80px 0}
+
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.05));border-radius:14px;padding:18px;border:1px solid rgba(255,255,255,0.03);position:relative;overflow:hidden;cursor:pointer;transition:transform .28s, box-shadow .28s}
+    .card:hover{transform:translateY(-8px);box-shadow:0 20px 50px rgba(0,255,230,0.05)}
+
+    .thumb{height:170px;border-radius:10px;overflow:hidden;background:linear-gradient(120deg,#002b36,#002b60);display:flex;align-items:center;justify-content:center;font-weight:700;color:rgba(255,255,255,0.12);font-size:22px}
+    .meta{margin-top:12px}
+    .meta h3{margin:0;font-size:18px}
+    .meta p{margin:6px 0 0;color:var(--muted);font-size:13px}
+
+    /* subtle neon hover border */
+    .card::after{content:'';position:absolute;inset:0;border-radius:14px;pointer-events:none;box-shadow:0 0 0 0 rgba(0,255,230,0);transition:box-shadow .28s}
+    .card:hover::after{box-shadow:0 0 40px rgba(0,255,230,0.06), inset 0 0 60px rgba(0,255,230,0.02)}
+
+    /* ----------------------------
+       Case study modal
+       ---------------------------- */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:80}
+    .modal .panel{width:min(980px,92%);background:linear-gradient(180deg,#081017,#06101a);border-radius:16px;padding:24px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 30px 80px rgba(0,0,0,0.7)}
+    .modal.open{display:flex}
+    .close{position:absolute;right:18px;top:18px;background:transparent;border:0;color:var(--muted);font-size:18px;cursor:pointer}
+
+    /* ----------------------------
+       Contact
+       ---------------------------- */
+    .contact{display:flex;gap:28px;align-items:flex-start}
+    .contact form{flex:1;display:flex;flex-direction:column;gap:12px}
+    input,textarea{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:12px;border-radius:10px;color:#eaffff}
+
+    /* ----------------------------
+       Footer
+       ---------------------------- */
+    footer{padding:40px 0;text-align:center;color:var(--muted)}
+
+    /* ----------------------------
+       Responsive
+       ---------------------------- */
+    @media (max-width:980px){ .grid{grid-template-columns:repeat(2,1fr)} h1{font-size:40px} }
+    @media (max-width:640px){ .grid{grid-template-columns:1fr} .navbar{padding:10px} h1{font-size:28px} .hero-inner{padding:56px 0} .hero{min-height:60vh} }
+
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <div class="nav-wrap">
+    <nav class="navbar container" role="navigation" aria-label="Primary">
+      <div class="logo">
+        <div class="mark" aria-hidden="true">ND</div>
+        <div class="title">Nurdiyor</div>
+      </div>
+      <div class="menu" role="menubar">
+        <a href="#work">Portfolio</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <button class="cta" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Hire me</button>
+    </nav>
+  </div>
+
+  <!-- HERO -->
+  <header class="hero">
+    <canvas id="heroCanvas"></canvas>
+    <div class="container hero-inner">
+      <div class="eyebrow">UX • UI • Creative Dev</div>
+      <h1>Hi, I'm <span style="color:var(--accent)">Nurdiyor</span> — I design<br> premium digital experiences</h1>
+      <p class="lead">I build high-end web interfaces, interactive visuals and brand experiences. My work mixes design, motion and WebGL to create unforgettable moments.</p>
+      <div class="hero-actions">
+        <button class="btn primary" onclick="document.getElementById('work').scrollIntoView({behavior:'smooth'})">View work</button>
+        <button class="btn" onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})">Learn more</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- PORTFOLIO -->
+  <main class="container">
+    <section id="work">
+      <h2 style="margin-bottom:18px">Selected Projects</h2>
+      <div class="grid" id="projects">
+        <!-- Sample cards (replace with your real projects) -->
+        <article class="card" data-title="Interstellar UI" data-desc="A cinematic WebGL interface" data-img="">
+          <div class="thumb">Interstellar UI</div>
+          <div class="meta"><h3>Interstellar UI</h3><p>Neon WebGL dashboard and immersive controls.</p></div>
+        </article>
+
+        <article class="card" data-title="Quantum Landing" data-desc="Shader-driven landing" data-img="">
+          <div class="thumb">Quantum Landing</div>
+          <div class="meta"><h3>Quantum Landing</h3><p>Laser-guided, audio-reactive hero section.</p></div>
+        </article>
+
+        <article class="card" data-title="Brand System" data-desc="Full brand + UI system" data-img="">
+          <div class="thumb">Brand System</div>
+          <div class="meta"><h3>Brand System</h3><p>Design system for modern products.</p></div>
+        </article>
+
+        <article class="card" data-title="Portfolio Motion" data-desc="Motion-led case studies" data-img="">
+          <div class="thumb">Motion Case</div>
+          <div class="meta"><h3>Motion Case</h3><p>Animated storytelling for product launches.</p></div>
+        </article>
+
+        <article class="card" data-title="Corporate Redesign" data-desc="Enterprise UX overhaul" data-img="">
+          <div class="thumb">Corp Redesign</div>
+          <div class="meta"><h3>Corporate Redesign</h3><p>Modern, accessible enterprise UI.</p></div>
+        </article>
+
+        <article class="card" data-title="Experimental Lab" data-desc="Research & experimental UI" data-img="">
+          <div class="thumb">Lab Experiments</div>
+          <div class="meta"><h3>Experimental Lab</h3><p>Prototypes and generative designs.</p></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about">
+      <h2>About me</h2>
+      <div style="display:flex;gap:28px;align-items:center;margin-top:18px;flex-wrap:wrap">
+        <div style="flex:1;min-width:260px">
+          <p style="color:var(--muted)">I'm a product designer & creative developer focused on immersive web experiences. I combine UI craft with real-time visuals to build memorable interfaces used by global brands.</p>
+          <ul style="color:var(--muted);margin-top:12px">
+            <li>Design systems, interaction design</li>
+            <li>WebGL, three.js, shader art</li>
+            <li>Motion design, prototyping</li>
+          </ul>
+        </div>
+        <div style="width:260px;height:260px;border-radius:18px;background:var(--card);border:1px solid rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:center">Photo</div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact">
+      <h2>Contact</h2>
+      <div style="margin-top:18px" class="contact">
+        <form onsubmit="event.preventDefault(); alert('Thanks — message sent (demo)')">
+          <input placeholder="Your name" required />
+          <input placeholder="Email" type="email" required />
+          <textarea placeholder="Tell me about your project" rows="6" required></textarea>
+          <div style="display:flex;gap:12px;margin-top:8px">
+            <button class="btn primary" type="submit">Send message</button>
+            <button class="btn" type="button" onclick="window.location.href='mailto:you@example.com'">Email me</button>
+          </div>
+        </form>
+        <div style="width:320px;color:var(--muted);">
+          <h4 style="margin:0 0 8px 0">Quick info</h4>
+          <p style="margin:0">Based in Tashkent — available for remote and onsite projects. Rates and availability on request.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">© <strong>Nurdiyor</strong> — Built with craft & neon.</div>
+  </footer>
+
+  <!-- Case-study modal -->
+  <div id="modal" class="modal" role="dialog" aria-modal="true">
+    <div class="panel">
+      <button class="close" onclick="closeModal()">✕</button>
+      <h3 id="msTitle">Project</h3>
+      <p id="msDesc" style="color:var(--muted)"></p>
+      <div style="height:14px"></div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-height:220px;background:var(--card);border-radius:10px"></div>
+        <div style="width:320px;color:var(--muted)">Case study notes, role, tools, and results go here.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =========================
+       Hero background: lightweight three.js particle field
+       ========================= */
+    const canvas = document.getElementById('heroCanvas');
+    const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+    function resize(){ renderer.setSize(window.innerWidth, Math.max(window.innerHeight*0.76, 560)); }
+    resize(); window.addEventListener('resize', resize);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / (window.innerHeight*0.76 || 600), 0.1, 1000);
+    camera.position.z = 70;
+
+    // particles
+    const pCount = 2200;
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(pCount*3);
+    for(let i=0;i<pCount;i++){
+      const r = 10 + Math.random()*50;
+      const a = Math.random()*Math.PI*2;
+      pos[i*3+0] = Math.cos(a)*r;
+      pos[i*3+1] = (Math.random()-0.5)*8;
+      pos[i*3+2] = Math.sin(a)*r;
+    }
+    geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+
+    const mat = new THREE.PointsMaterial({size:1.6, transparent:true, opacity:0.9, depthWrite:false, color:0x00ffe7});
+    const points = new THREE.Points(geo, mat);
+    scene.add(points);
+
+    // subtle orbital lights
+    const light = new THREE.PointLight(0x00ffe7, 0.6, 200); light.position.set(30,20,30); scene.add(light);
+    const light2 = new THREE.PointLight(0x0066ff, 0.2, 200); light2.position.set(-20,-10,40); scene.add(light2);
+
+    const clock = new THREE.Clock();
+    document.addEventListener('mousemove', e => {
+      const nx = (e.clientX / window.innerWidth) - 0.5;
+      const ny = (e.clientY / window.innerHeight) - 0.5;
+      camera.position.x += (nx*20 - camera.position.x) * 0.06;
+      camera.position.y += (-ny*12 - camera.position.y) * 0.06;
+    });
+
+    function render(){
+      requestAnimationFrame(render);
+      const t = clock.getElapsedTime();
+      points.rotation.y = t*0.06;
+      renderer.render(scene, camera);
+    }
+    render();
+
+    /* =========================
+       Card click -> modal
+       ========================= */
+    document.querySelectorAll('.card').forEach(card=>{
+      card.addEventListener('click', ()=>{
+        const title = card.dataset.title || 'Project';
+        const desc = card.dataset.desc || '';
+        document.getElementById('msTitle').innerText = title;
+        document.getElementById('msDesc').innerText = desc;
+        document.getElementById('modal').classList.add('open');
+      });
+    });
+    function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+
+    // keyboard close
+    window.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+    /* Accessibility: simple focus outlines */
+    document.addEventListener('keyup', e=>{ if(e.key==='Tab') document.body.classList.add('show-focus'); });
+
+    /* Tiny polishing: animate navbar appearance */
+    document.querySelector('.navbar').style.transform = 'translateY(-8px)';
+    setTimeout(()=>{ document.querySelector('.navbar').style.transform = ''; }, 650);
+
+    /* Replace sample project placeholders with real images/links as you like */
+
+  </script>
+</body>
+</html>
